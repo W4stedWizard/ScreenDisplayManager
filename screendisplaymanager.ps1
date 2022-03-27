@@ -1,6 +1,6 @@
 
-$path = "D:\MISC\FSMB\AdminShit\screendisplaymanager\"
-# \\corellia\infoscreen
+$path = "\\corellia\infoscreen"
+# D:\MISC\FSMB\AdminShit\screendisplaymanager\
 $csvname = "Auslaufdatum.csv"
 
 
