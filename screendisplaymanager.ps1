@@ -1,6 +1,7 @@
 
-$path = "\\corellia\infoscreen"
+$path = "D:\MISC\FSMB\AdminShit\screendisplaymanager\"
 # D:\MISC\FSMB\AdminShit\screendisplaymanager\
+# \\corellia\infoscreen
 $csvname = "Auslaufdatum.csv"
 
 
@@ -40,9 +41,13 @@ $filesTSE = @() #ThatShouldExist
 $CSV = (Import-Csv -Path $csvpath | ForEach-Object {
     #Primary Check through CSV mentioned
     if(Test-Path -Path ($path+$_.dateiname)){ #Does the file exist?
-        if((Get-Date -Date $_.auslaufdatum) -lt (Get-Date)) { #Is the expiration date reached?
-            shadowrealm($_.dateiname) #Move to old
-        }else{$_; $filesTSE+=$_.dateiname} #Add file name to list for double checking removable files
+        try {
+            if ((Get-Date -Date $_.auslaufdatum) -lt (Get-Date)) {#Is the expiration date reached?
+                shadowrealm($_.dateiname) #Move to old
+            }
+            else {$_; $filesTSE += $_.dateiname } #Add file name to list for double checking removable files
+        }
+        catch{ echo "DateParseException?"}
     }}) #Note that this automatically cleans the CSV for files removed or nonexistent
 
 Get-ChildItem -Path $path -File | ForEach-Object {
