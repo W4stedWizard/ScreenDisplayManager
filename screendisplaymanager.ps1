@@ -1,5 +1,5 @@
 
-$path = "\\corellia\infoscreen"
+$path = "D:\MISC\FSMB\AdminShit\screendisplaymanager\"
 # D:\MISC\FSMB\AdminShit\screendisplaymanager\
 $csvname = "Auslaufdatum.csv"
 
@@ -9,11 +9,17 @@ $csvpath = ($path+$csvname)
 
 function initCSV{
     param ()
-    #Initialises a CSV in case none exists
+
+    if(-Not(Test-Path -Path $oldpath)) {
+        New-Item -Path $oldpath -Type "directory"
+        echo "Made .old folder"
+    }#Initialises a .old in case none exists
     if(-Not(Test-Path -Path $csvpath)) {
         Set-Content $csvpath -Value ("dateiname,auslaufdatum`n"+$csvname+",3000-01-01")
         echo "Made CSV file"
-    }
+        exit
+    }#Initialises a CSV in case none exists
+
 }
 
 function shadowrealm{
@@ -22,8 +28,9 @@ function shadowrealm{
     if(Test-Path -Path ($oldpath+$filename)){
         $suffix = 1
         while(Test-Path -Path ($oldpath+$filename+"_$suffix")){ $suffix++}
+        $suffix="_$suffix"
     } #In case of multiple files with the same name being moved into the old dir, suffix them to avoid overwrite
-    Move-Item ($path+$filename) -Destination ($oldpath+$filename+"_$suffix")
+    Move-Item ($path+$filename) -Destination ($oldpath+$filename+$suffix)
     echo ("Shadowrealmed "+$filename)
 }
 
@@ -38,7 +45,7 @@ $CSV = (Import-Csv -Path $csvpath | ForEach-Object {
         }else{$_; $filesTSE+=$_.dateiname} #Add file name to list for double checking removable files
     }}) #Note that this automatically cleans the CSV for files removed or nonexistent
 
-Get-ChildItem -Path $path | ForEach-Object {
+Get-ChildItem -Path $path -File | ForEach-Object {
     #Scan for removable files
     if(-Not ($filesTSE.Contains($_.name))){ #Is existing file mentioned in CSV?
         shadowrealm($_.name) #move to old if not
