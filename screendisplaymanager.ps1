@@ -1,5 +1,5 @@
 
-$path = "\\corellia\infoscreen"
+$path = "\\corellia\infoscreen\"
 # D:\MISC\FSMB\AdminShit\screendisplaymanager\
 # \\corellia\infoscreen
 $csvname = "Auslaufdatum.csv"
@@ -33,6 +33,12 @@ function shadowrealm{
     } #In case of multiple files with the same name being moved into the old dir, suffix them to avoid overwrite
     Move-Item ($path+$filename) -Destination ($oldpath+$filename+$suffix)
     echo ("Shadowrealmed "+$filename)
+    if($filename -eq $csvname){
+        #Just shadowrealmed my anchor CSV. Very high change of something being VERY WRONG HOLY SHIT
+        initCSV("") #Saved the general structure - but any data content is still lost. Notify admins.
+        #TODO    INSERT WEBHOOK NOTIF HERE
+        exit
+    }
 }
 
 initCSV("")
@@ -47,7 +53,10 @@ $CSV = (Import-Csv -Path $csvpath | ForEach-Object {
             }
             else {$_; $filesTSE += $_.dateiname } #Add file name to list for double checking removable files
         }
-        catch{ echo "DateParseException?"}
+        catch{
+            echo "DateParseException?"
+            #Notify Webhook Service
+        }
     }}) #Note that this automatically cleans the CSV for files removed or nonexistent
 
 Get-ChildItem -Path $path -File | ForEach-Object {
